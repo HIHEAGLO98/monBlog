@@ -21,6 +21,36 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         // \App\Models\User::factory(10)->create();
+
+        // Social
+        DB::table('follows')->insert([
+            ['title' => 'Twitter', 'href' => '#'],
+            ['title' => 'Facebook', 'href' => '#'],
+            ['title' => 'Dribbble', 'href' => '#'],
+            ['title' => 'Instagram', 'href' => '#'],
+        ]);
+
+        //Pages
+        $items = [
+            ['about-us', 'About us'],
+            ['terms', 'Terms'],
+            ['faq', 'FAQ'],
+            ['privacy-policy', 'Privacy Policy'],
+        ];
+        foreach ($items as $item)
+        {
+            Page::factory()->create([
+                'slug'=>$item[0],
+                'title'=>$item[1],
+            ]);
+        }
+
+        //contacts
+        Contact::withoutEvents(function () {
+            Contact::factory()->count(5)->create();
+
+        });
+
         User::withoutEvents(function () {
             // Create 1 admin
             User::factory()->create([

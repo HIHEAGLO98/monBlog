@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
+use Illuminate\Notifications\Notifiable;
+use App\Events\ModelCreated;
 class Post extends Model
 {
-    use HasFactory;
+    use HasFactory, Notifiable;
     protected $fillable = [
         'title',
         'slug',
@@ -19,6 +20,10 @@ class Post extends Model
         'active',
         'image',
         'user_id',
+    ];
+    //notifier just a d'un post
+    protected $dispatchesEvents = [
+        'created' => ModelCreated::class,
     ];
 
     //un post appartient à un user

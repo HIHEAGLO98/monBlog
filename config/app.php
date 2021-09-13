@@ -12,6 +12,22 @@ return [
     | any other location as required by the application or its packages.
     |
     */
+
+    /*
+    |--------------------------------------------------------------------------
+    | Comments
+    |--------------------------------------------------------------------------
+    */
+    'commentsNestedLevel' => 4,
+
+    /*
+    |--------------------------------------------------------------------------
+    | SEO
+    |--------------------------------------------------------------------------
+    */
+    'description' => 'The best blog in the world',
+    'author' => 'The best author',
+
     /*
     |--------------------------------------------------------------------------
     | Pagination Configuration
@@ -88,7 +104,7 @@ return [
     |
     */
 
-    'locale' => 'en',
+    'locale' => 'fr',
 
     /*
     |--------------------------------------------------------------------------
@@ -236,6 +252,7 @@ return [
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
+        'Gravatar' => Creativeorange\Gravatar\Facades\Gravatar::class,
 
     ],
 

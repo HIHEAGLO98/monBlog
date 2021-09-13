@@ -2,12 +2,17 @@
 <html class="no-js" lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
 
-    <!--- basic page needs
-    ================================================== -->
+    <!--- basic page needs ================================================== -->
     <meta charset="utf-8">
     <title>{{ config('app.name') }}</title>
     <meta name="description" content="">
     <meta name="author" content="">
+    <title>{{ isset($post) && $post->seo_title ? $post->seo_title :  config('app.name') }}</title>
+    <meta name="description" content="{{ isset($post) && $post->meta_description ? $post->meta_description : __(config('app.description')) }}">
+    <meta name="author" content="{{ isset($post) ? $post->user->name : __(config('app.author')) }}">
+    @if(isset($post) && $post->meta_keywords)
+        <meta name="keywords" content="{{ $post->meta_keywords }}">
+    @endif
 
     <!-- mobile specific metas
     ================================================== -->
@@ -34,18 +39,14 @@
 </head>
 
 <body id="top">
-
-
-    <!-- preloader
-    ================================================== -->
+  <!-- preloader ================================================== -->
     <div id="preloader">
     	<div id="loader"></div>
     </div>
 
 
-    <!-- header
-    ================================================== -->
-    <header class="s-header">
+    <!-- header ================================================== -->
+    <header class="s-header @unless(currentRoute('home')) s-header--opaque @endunless">
 
         <div class="s-header__logo">
             <a class="logo" href="{{ route('home') }}">
@@ -67,10 +68,49 @@
                         <a href="#" title="">@lang('Categories')</a>
                         <ul class="sub-menu">
                             @foreach($categories as $category)
-                                <li><a href="#">{{ $category->title }}</a></li>
+                                <li><a href="{{ route('category', $category->slug) }}">{{ $category->title }}</a></li>
                             @endforeach
                         </ul>
                     </li>
+                    <li {{ currentRoute('contacts.create') }}>
+                        <a href="{{ route('contacts.create') }}" title="">@lang('Contact')</a>
+                    </li>
+                    @guest
+                        @request('register')
+                        <li class="current">
+                            <a href="{{ request()->url() }}">@lang('Register')</a>
+                        </li>
+                        @endrequest
+                        <li {{ currentRoute('login') }}>
+                            <a href="{{ route('login') }}">@lang('Login')</a>
+                        </li>
+                        @request('forgot-password')
+                        <li class="current">
+                            <a href="{{ request()->url() }}">@lang('Password')</a>
+                        </li>
+                        @endrequest
+                        @request('reset-password/*')
+                        <li class="current">
+                            <a href="{{ request()->url() }}">@lang('Password')</a>
+                        </li>
+                        @endrequest
+                    @else
+                        @if(auth()->user()->role != 'user')
+                            <li>
+                                <a href="{{ url('admin') }}">@lang('Administration')</a>
+                            </li>
+                        @endif
+                        <li>
+                            <form action="{{ route('logout') }}" method="POST" hidden>
+                                @csrf
+                            </form>
+                            <a
+                                href="{{ route('logout') }}"
+                                onclick="event.preventDefault(); this.previousElementSibling.submit();">
+                                @lang('Logout')
+                            </a>
+                        </li>
+                    @endguest
                 </ul>
 
                 <a href="#0" title="@lang('Close Menu')" class="s-header__overlay-close close-mobile-menu">@lang('Close')</a>
@@ -86,10 +126,10 @@
             <div class="s-header__search-inner">
                 <div class="row wide">
 
-                    <form role="search" method="get" class="s-header__search-form" action="#">
+                    <form role="search" method="get" class="s-header__search-form" action="{{ route('posts.search') }}">
                         <label>
                             <span class="h-screen-reader-text">@lang('Search for:')</span>
-                            <input type="search" class="s-header__search-field" placeholder="Search for..." value="" name="s" title="Search for:" autocomplete="off">
+                            <input id="search" type="search" class="s-header__search-field" placeholder="Search for..." name="search" title="Search for:" autocomplete="off">
                         </label>
                         <input type="submit" class="s-header__search-submit" value="Search">
                     </form>
@@ -107,15 +147,13 @@
 
     </header>
 
-
     <!-- hero
     ================================================== -->
     @yield('hero')
 
-
     <!-- content
     ================================================== -->
-    <section class="s-content s-content--no-top-padding">
+    <section class="s-content  @if(currentRoute('home')) s-content--no-top-padding @endif">
 
         @yield('main')
 
@@ -144,53 +182,30 @@
 
                 <div class="column large-2 medium-3 tab-6 s-footer__site-links">
 
-                    <h5>Lins Utiles</h5>
+                    <h5>@lang('Site Links')</h5>
+
 
                     <ul>
-                        <li><a href="#0">About Us</a></li>
-                        <li><a href="#0">Blog</a></li>
-                        <li><a href="#0">FAQ</a></li>
-                        <li><a href="#0">Terms</a></li>
-                        <li><a href="#0">Privacy Policy</a></li>
+                        @foreach($pages as $page)
+                            <li><a href="{{ route('page', $page->slug) }}">@lang($page->title)</a></li>
+                        @endforeach
                     </ul>
 
                 </div> <!-- end s-footer__site-links -->
 
                 <div class="column large-2 medium-3 tab-6 s-footer__social-links">
 
-                    <h5>Abonnez-vous</h5>
+                    <h5>@lang('Follow Us')</h5>
 
                     <ul>
-                        <li><a href="#0">Twitter</a></li>
-                        <li><a href="#0">Facebook</a></li>
-                        <li><a href="#0">Dribbble</a></li>
-                        <li><a href="#0">Pinterest</a></li>
-                        <li><a href="#0">Instagram</a></li>
+                        @foreach($follows as $follow)
+                            <li><a href="{{ $follow->href }}">{{ $follow->title }}</a></li>
+                        @endforeach
                     </ul>
 
                 </div> <!-- end s-footer__social links -->
 
-                <div class="column large-3 medium-6 tab-12 s-footer__subscribe">
-
-                    <h5>Sign Up for Newsletter</h5>
-
-                    <p>Signup to get updates on articles, interviews and events.</p>
-
-                    <div class="subscribe-form">
-
-                        <form id="mc-form" class="group" novalidate="true">
-
-                            <input type="email" value="" name="dEmail" class="email" id="mc-email" placeholder="Your Email Address" required="">
-
-                            <input type="submit" name="subscribe" value="subscribe" >
-
-                            <label for="mc-email" class="subscribe-message"></label>
-
-                        </form>
-
-                    </div>
-
-                </div> <!-- end s-footer__subscribe -->
+                <!-- end s-footer__subscribe -->
 
             </div> <!-- end row -->
 

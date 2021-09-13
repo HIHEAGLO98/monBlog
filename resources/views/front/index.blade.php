@@ -18,10 +18,16 @@
               <p>@lang('Follow')</p>
               <span></span>
               <ul class="s-hero__social-icons">
-                  <li><a href="#0"><i class="fab fa-facebook-f" aria-hidden="true"></i></a></li>
-                  <li><a href="#0"><i class="fab fa-twitter" aria-hidden="true"></i></a></li>
-                  <li><a href="#0"><i class="fab fa-instagram" aria-hidden="true"></i></a></li>
-                  <li><a href="#0"><i class="fab fa-dribbble" aria-hidden="true"></i></a></li>
+                  @foreach($follows as $follow)
+                      <li>
+                          <a href="{{ $follow->href }}">
+                              <i
+                                  class="fab fa-{{ $follow->title === 'Facebook' ? 'facebook-f' : lcfirst($follow->title) }}"
+                                  aria-hidden="true">
+                              </i>
+                          </a>
+                      </li>
+                  @endforeach
               </ul>
           </div>
 
