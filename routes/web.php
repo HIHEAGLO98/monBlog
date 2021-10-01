@@ -7,6 +7,8 @@ use App\Http\Controllers\Front\CommentController as FrontCommentController;
 use App\Http\Controllers\Front\ContactController as FrontContactController;
 use App\Http\Controllers\Front\PageController as FrontPageController;
 use App\Http\Controllers\Back\AdminController;
+use App\Http\Controllers\Front\PostController as BackPostController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -25,6 +27,22 @@ Route::prefix('admin')->group(function () {
     Route::middleware('redac')->group(function () {
         Route::name('admin')->get('/', [AdminController::class, 'index']);
         Route::name('purge')->put('purge/{model}', [AdminController::class, 'purge']);
+    });
+    /*
+    Route::middleware('redac')->group(function () {
+        Route::resource('posts', BackPostController::class)->except('show');
+    });
+    Route::middleware('admin')->group(function () {
+        Route::name('posts.indexnew')->get('newposts', [BackPostController::class, 'index']);
+    });*/
+});
+
+Route::prefix('admin')->group(function () {
+    Route::middleware('redac')->group(function () {
+        Route::resource('posts', BackPostController::class)->except('show');
+    });
+    Route::middleware('admin')->group(function () {
+        Route::name('posts.indexnew')->get('newposts', [BackPostController::class, 'index']);
     });
 });
 
