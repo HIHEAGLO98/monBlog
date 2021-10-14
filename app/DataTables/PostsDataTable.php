@@ -3,16 +3,14 @@
 namespace App\DataTables;
 
 use App\Models\Post;
-use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
-use Yajra\DataTables\Html\Editor\Editor;
-use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
 use Illuminate\Support\Facades\Route;
 
 class PostsDataTable extends DataTable
 {
     use DataTableTrait;
+
     /**
      * Build DataTable class.
      *
@@ -78,35 +76,10 @@ class PostsDataTable extends DataTable
             ->rawColumns(['categories', 'comments_count', 'action', 'created_at']);
     }
 
-    protected function getDate($post)
-    {
-        if(!$post->active) {
-            return $this->badge('Not published', 'warning');
-        }
-
-        $updated = $post->updated_at > $post->created_at;
-        $html = $this->badge($updated ? 'Last update' : 'Published', 'success');
-
-        $html .= '<br>' . formatDate($updated ? $post->updated_at : $post->created_at) . __(' at ') . formatHour($updated ? $post->updated_at : $post->created_at);
-
-        return $html;
-    }
-
-    protected function getCategories($post)
-    {
-        $html = '';
-
-        foreach($post->categories as $category) {
-            $html .= $category->title . '<br>';
-        }
-
-        return $html;
-    }
-
     /**
      * Get query source of dataTable.
      *
-     * @param \App\Models\Post $post
+     * @param \App\Models\Post $model
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function query(Post $post)
@@ -116,6 +89,7 @@ class PostsDataTable extends DataTable
         if(Route::currentRouteNamed('posts.indexnew')) {
             $query->has('unreadNotifications');
         }
+
         return $query->select(
             'posts.id',
             'slug',
@@ -128,7 +102,6 @@ class PostsDataTable extends DataTable
                 'user:id,name',
                 'categories:title')
             ->withCount('comments');
-        //return $model->newQuery();
     }
 
     /**
@@ -181,5 +154,43 @@ class PostsDataTable extends DataTable
     protected function filename()
     {
         return 'Posts_' . date('YmdHis');
+    }
+
+
+    /**
+     * Get zone date.
+     *
+     * @param \App\Models\Post $post
+     * @return string
+     */
+    protected function getDate($post)
+    {
+        if(!$post->active) {
+            return $this->badge('Not published', 'warning');
+        }
+
+        $updated = $post->updated_at > $post->created_at;
+        $html = $this->badge($updated ? 'Last update' : 'Published', 'success');
+
+        $html .= '<br>' . formatDate($updated ? $post->updated_at : $post->created_at) . __(' at ') . formatHour($updated ? $post->updated_at : $post->created_at);
+
+        return $html;
+    }
+
+    /**
+     * Get categories.
+     *
+     * @param \App\Models\Post $post
+     * @return string
+     */
+    protected function getCategories($post)
+    {
+        $html = '';
+
+        foreach($post->categories as $category) {
+            $html .= $category->title . '<br>';
+        }
+
+        return $html;
     }
 }
